@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  pull_request:
+
+env:
+  ACTION_TYPE: "build"  
+  USERNAME: ${{ toJson(github.event.head_commit.author.username) }}
+  GITHUB_CONTEXT: ${{ toJson(github.event.head_commit.author.email) }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Build
+      run: go build -v ./...
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"
+
+    - name: Checking template
+      run: python check_template.py
+
+    - name: Checking coverage
+      run: python check_coverage.py
+
+    
